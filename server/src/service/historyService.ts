@@ -22,7 +22,7 @@ class HistoryService {
   };
   // Define a write method that writes the updated cities array to the searchHistory.json file
   private async write(cities: City[]) {
-    return await fs.writeFile('db/searchHistory.josn', JSON.stringify(cities, null, '\t'));
+    return await fs.writeFile('db/searchHistory.json', JSON.stringify(cities, null, '\t'));
   }
   // Define a getCities method that reads the cities from the searchHistory.json file and returns them as an array of City objects
   async getCities() {
@@ -42,8 +42,15 @@ class HistoryService {
   // Define an addCity method that adds a city to the searchHistory.json file
   async addCity(city: string) {
     if (!city) {
-      throw new Error('City input field cannot be blank!');
+      console.error('City name is required!');
+      return;
     }
+
+    let cityHistory = await this.getCities(); 
+    for (let cityH of cityHistory) {
+      if (cityH.name === city) {
+        return;
+    }};
 
     const newCity: City = {
       id: uuidv4(),
@@ -59,7 +66,11 @@ class HistoryService {
   }
   // * BONUS *
   //TODO: Define a removeCity method that removes a city from the searchHistory.json file
-  // async removeCity(id: string) {}
+  async removeCity(id: string) {
+    let cityHistory = await this.getCities();
+    let updatedCities = cityHistory.filter((city) => city.id !== id);
+    return await this.write(updatedCities);
+  }
 }
 
 export default new HistoryService();

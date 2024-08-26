@@ -39,7 +39,6 @@ class WeatherService {
       lat: locationData.lat,
       lon: locationData.lon,
     };
-    console.log(coordinates);
     return coordinates;
   }
   // TODO: Create fetchAndDestructureLocationData method
@@ -50,26 +49,43 @@ class WeatherService {
   // private buildWeatherQuery(coordinates: Coordinates): string {}
   // TODO: Create fetchWeatherData method
   private async fetchWeatherData(coordinates: Coordinates) {
-    let response = await fetch(`${this.baseURL}lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}`);
+    let response = await fetch(`${this.baseURL}lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}&units=imperial`);
     return response;
   }
   // TODO: Build buildCurrentWeather method
   private buildCurrentWeather(weatherData: any) {
     let currentWeather: Weather = {
       city: weatherData.city.name,
-      date: weatherData.list[0].dt_txt.slice(0, 9),
+      date: weatherData.list[0].dt_txt.slice(0, 10),
       icon: weatherData.list[0].weather[0].icon,
       description: weatherData.list[0].weather[0].description, 
       temp: weatherData.list[0].main.temp,
       wind: weatherData.list[0].wind.speed,
       humidity: weatherData.list[0].main.humidity,
     }
-
     return currentWeather;
   }
   // TODO: Complete buildForecastArray method
   private buildForecastArray(weatherData: any) {
+    let forecastArray = [];
+    let forecastData = weatherData.list;
+    for (let day of forecastData) {
+      let dayWeather: Weather = {
+        city: weatherData.city.name,
+        date: day.dt_txt.slice(0, 10),
+        icon: day.weather[0].icon,
+        description: day.weather[0].description, 
+        temp: day.main.temp,
+        wind: day.wind.speed,
+        humidity: day.main.humidity,
+      }
+      let dayTime = day.dt_txt.slice(11, 19);
     
+      if (dayTime === '12:00:00') {
+        forecastArray.push(dayWeather);
+      }
+    }
+    return forecastArray;
   }
   // TODO: Complete getWeatherForCity method
   async getWeatherForCity(city: string) {
@@ -79,11 +95,19 @@ class WeatherService {
       let geoCoordinates = this.destructureLocationData(geoData[0]);
 
       let weatherResponse = await this.fetchWeatherData(geoCoordinates);
-      let cityWeather = await weatherResponse.json();
+      let weatherData = await weatherResponse.json();
+
+      let cityWeather = [];
+      let currentWeather = this.buildCurrentWeather(weatherData);
+      cityWeather.push(currentWeather);
+      let forecastArray = this.buildForecastArray(weatherData);
+      cityWeather.push(forecastArray);
+
       return cityWeather;
     }
     catch (error) {
-      console.log(`There was an error ${error}`);
+      console.log(`There was an error: ${error}`);
+      return [];
     }
   }
 }
