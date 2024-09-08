@@ -1,12 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// TODO: Define an interface for the Coordinates object
+// Define an interface for the Coordinates object
 interface Coordinates {
   lat: number;
   lon: number;
 }
-// TODO: Define a class for the Weather object
+// Define a class for the Weather object
 interface Weather {
   city: string;
   date: string;
@@ -16,24 +16,24 @@ interface Weather {
   wind: number;
   humidity: number;
 }
-// TODO: Complete the WeatherService class
+// Complete the WeatherService class
 class WeatherService {
   // TODO: Define the baseURL, API key, and geoURL properties
   baseURL: string;
+  geoURL: string;
   apiKey: string;
-  geoURL: string; //what to do with this?
 
   constructor() {
     this.baseURL = process.env.API_BASE_URL || '';
-    this.apiKey = process.env.API_KEY || '';
     this.geoURL = process.env.GEO_URL || '';
+    this.apiKey = process.env.API_KEY || '';
   }
-  // TODO: Create fetchLocationData method
+  // Create fetchLocationData method
   private async fetchLocationData(query: string) {
     let response = await fetch(`${this.geoURL}${query}&limit=5&appid=${this.apiKey}`);
     return response;
   }
-  // TODO: Create destructureLocationData method
+  // Create destructureLocationData method
   private destructureLocationData(locationData: Coordinates): Coordinates {
     let coordinates: Coordinates = {
       lat: locationData.lat,
@@ -41,18 +41,12 @@ class WeatherService {
     };
     return coordinates;
   }
-  // TODO: Create fetchAndDestructureLocationData method
-  // private async fetchAndDestructureLocationData() { }
-  // TODO: Create buildGeocodeQuery method
-  // private buildGeocodeQuery(): string {}
-  // TODO: Create buildWeatherQuery method
-  // private buildWeatherQuery(coordinates: Coordinates): string {}
-  // TODO: Create fetchWeatherData method
+
   private async fetchWeatherData(coordinates: Coordinates) {
     let response = await fetch(`${this.baseURL}lat=${coordinates.lat}&lon=${coordinates.lon}&appid=${this.apiKey}&units=imperial`);
     return response;
   }
-  // TODO: Build buildCurrentWeather method
+  // Build buildCurrentWeather method
   private buildCurrentWeather(weatherData: any) {
     let currentWeather: Weather = {
       city: weatherData.city.name,
@@ -65,7 +59,7 @@ class WeatherService {
     }
     return currentWeather;
   }
-  // TODO: Complete buildForecastArray method
+  // Complete buildForecastArray method
   private buildForecastArray(weatherData: any) {
     let forecastArray = [];
     let forecastData = weatherData.list;
@@ -87,7 +81,7 @@ class WeatherService {
     }
     return forecastArray;
   }
-  // TODO: Complete getWeatherForCity method
+  // Complete getWeatherForCity method
   async getWeatherForCity(city: string) {
     try {
       let geoResponse = await this.fetchLocationData(city);
